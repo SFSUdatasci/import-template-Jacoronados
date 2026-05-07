@@ -1,0 +1,77 @@
+---
+title: "a02"
+author: "Jorge Coronado"
+---
+
+# Introduction
+
+This Quarto document follows the structure of a prose + code reproducible analysis, similiar to the format presented in coreR session 05 (literate Analysis with Quarto). Here, I analyze a dataset of TiO2 thin film growth experiments designed to explore how synthesis and annealing conditions influence structural properties and photoelectrocatalytic performance.
+
+## About the data
+
+The dataset used here is:
+
+data_set_TiO2_fotoelectrocatalysis.csv
+
+Number or observations: 300 
+
+Experimental system: TiO2 thin films deposited on different substrates
+
+## Experimental context
+
+The dataset presents the results for the growth of TiO2 crystals on:
+
+-   Fused Quartz
+-   Silica
+-   FTO (Fluorine-doped Tin Oxide)
+
+The experimental variables include:
+
+-   Annealing temperature and time
+-   Reaction temperature and time
+-   pH of synthesis solution
+-   Concentration of TiF4 (precursor)
+-   Concetration of nitric acid (precursor)
+
+The structural outputs include:
+
+-   Crystalline phase (Anatase or Rutile)
+-   Crystallite size
+-   Film thickness
+-   Surface roughness
+-   Band gap energy
+
+Performance metrics include:
+
+-   Photocurrent density (mA/cm2)
+-   Apparent first-order degradation rate constant (k, 1/min)
+
+## Setup
+
+```{r}
+library(here)
+library(readr)
+```
+
+# Read in the data
+
+```{r}
+TiO2_ds <- read_csv(here::here("data", "raw", "dataset_TiO2_photoelectrocatalysis.csv"))
+```
+
+# Quick peek at the data
+
+```{r}
+names(TiO2_ds)
+str(TiO2_ds)
+head(TiO2_ds)
+summary(TiO2_ds)
+```
+
+# Analysis
+
+The dataset follows the main principles of tidy data. Each row represents one single experiment, meaning that every observation correspond to one independent TiO2 synthesis and characterization experiment. Each column represents a single variable, including process parameters, structural properties, and performance metrics. In addition, each cell contains a single value, ensuring that no multiple measurements are stored within a single column or embedded in complex data structures.
+
+# Conclusion
+
+This dataset is organized in a tidy format.

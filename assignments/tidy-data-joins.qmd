@@ -1,0 +1,125 @@
+---
+title: "R practice: Tidy Data and Joins"
+editor: visual
+---
+
+```{r}
+library(readr)
+library(dplyr)
+library(here)
+library(lubridate)
+```
+
+# Exercise 1: Practice Joins
+
+## Read in the data
+
+```{r}
+bird_observations<- read.csv(here::here("data", "raw","52_pp52_birds_1.csv"))
+surveys <- read.csv(here::here("data", "raw","52_pp52_surveys_1.csv"))
+sites <- read.csv(here::here("data", "raw","52_pp52_sites_1.csv"))
+taxalist <- read.csv(here::here("data", "raw","52_pp52_taxalist_1.csv"))
+```
+
+## Get familiar with the data
+
+```{r}
+dim(bird_observations)
+```
+
+```{r}
+head(bird_observations)
+```
+
+```{r}
+glimpse(bird_observations)
+```
+```{r}
+summary(bird_observations)
+```
+```{r}
+names(bird_observations)
+```
+```{r}
+#unique(bird_observations) # I made this a comment to avoid render a full table
+```
+
+## Create a subset of bird_observations
+
+```{r}
+birds_subset <- bird_observations %>% 
+  filter(species_id %in% c("BHCO", "RWBL")) %>%
+  filter(site_id %in% c("LI-W", "NU-C"))
+
+head(birds_subset)
+```
+
+## Use left_join() to merge birds_subset and sites tables
+
+```{r}
+birds_left <- birds_subset %>% 
+  left_join(y = sites, by = "site_id")
+
+head(birds_left)
+```
+
+## Use full_join() to merge birds_subset and sites tables
+
+```{r}
+birds_full <- full_join(x = birds_subset, y = sites, by = "site_id")
+
+head(birds_full)
+```
+
+## Use inner_join() to merge birds_subset and taxalist data
+
+```{r}
+birds_inner <- inner_join(x = birds_subset, y = taxalist, by = "species_id")
+
+head(birds_inner)
+```
+
+# Exercise 2: Practice Wrangling & Joining Data
+
+## Wrangle bird_observations data and merge the data with all the other tables (sites, surveys, and taxalist)
+
+```{r}
+bird_observations <- bird_observations %>% 
+  rename(bird_obs_notes = notes)
+
+head(bird_observations)
+```
+
+```{r}
+bird_obs_subset <- bird_observations %>% 
+  full_join(y = taxalist, by = "species_id") %>% 
+  full_join(y = sites, by = "site_id") %>% 
+  full_join(y = surveys, by = c("site_id", "survey_id")) %>% 
+  select(survey_date, common_name, park_name, bird_count, observer)
+
+head(bird_obs_subset)
+```
+
+## Explore observer data and fix the values within this column so that all values are in the same format.
+
+```{r}
+unique(bird_obs_subset$observer)
+```
+```{r}
+bird_obs_subset <- bird_obs_subset %>% 
+  mutate(observer = if_else(condition = observer == "Josh Burns",
+                            true = "J. Burns",
+                            false = observer))
+
+head(bird_obs_subset)
+```
+
+```{r}
+unique(bird_obs_subset$observer)
+```
+
+```{r}
+bird_obs_subset <- bird_obs_subset %>% 
+  lubridate::month(label = "survey_month")
+```
+

@@ -1,0 +1,111 @@
+---
+title: "a05"
+author: "Jorge Coronado"
+---
+
+# Introduction
+
+The goal of this analysis is to explore visitation patterns in different restoration areas of the Sacramento - San Joaquin Delta. By looking at the number and type of visitors, we can better understand how people use these environments. This information is useful for managing these areas and making decisions about conservation and public access.
+
+# Analysis
+
+## Loading libraries
+
+```{r}
+library(readr)
+library(here)
+library(dplyr)
+library(tidyr)
+library(forcats) # makes working with factors easier
+library(ggplot2)
+library(leaflet) # interactive maps
+library(DT) # interactive tables
+library(scales) # scale functions for visualization
+library(janitor) # expedite cleaning and exploring data
+library(viridis) # colorblind friendly color palette
+```
+
+## Read in the data
+
+```{r}
+delta_visits_raw<- read.csv(here::here("data", "raw","Socioecological_monitoring_data.csv"))
+```
+
+## Getting the data ready
+
+```{r}
+delta_visits <- delta_visits_raw %>% 
+  janitor::clean_names()
+
+colnames(delta_visits)
+```
+```{r}
+visits_long <- delta_visits %>% 
+  pivot_longer(col = c(sm_boat, med_boat, lrg_boat, bank_angler, scientist, cars),
+               names_to = "visitor_type",
+               values_to = "quantity") %>% 
+  rename(restore_loc = eco_restore_approximate_location) %>% 
+  select(-notes)
+
+daily_visits_loc <- visits_long %>% 
+  group_by(restore_loc, date, visitor_type) %>% 
+  summarise(daily_visits = sum(quantity))
+
+daily_visits_totals <- daily_visits_loc %>% 
+  group_by(restore_loc) %>% 
+  mutate(n = sum(daily_visits)) %>% 
+  ungroup() %>% 
+  mutate(restore_loc = fct_reorder(restore_loc, desc(n)))
+
+locations <- visits_long %>% 
+  distinct(restore_loc, .keep_all = TRUE) %>% 
+  select(restore_loc, latitude, longitude)
+```
+
+## Plot
+
+```{r}
+# create a custom theme for consistent and recurring styling
+my_theme <- theme_bw(base_size = 14) +
+  theme(legend.position = "bottom", # move legend to bottom
+        axis.ticks.y = element_blank()) # remove y-axis ticks
+
+# create bar plot with total visits by location and visitor type
+ggplot(data = daily_visits_totals, # use summarized visits dataset
+       aes(x = daily_visits, y = restore_loc,
+           fill = visitor_type)) + # map visits, location, and visitor type
+  geom_col() + # create bar chart
+  scale_fill_viridis_d() + # apply colorblind-friendly palette
+  labs(x = "Number of Visits", # label for x-axis
+       y = "Restoration Location", # label for y-axis
+       fill = "Type of Visitor", # legend title
+       title = "Total Number of Visits to Delta Restoration Areas by visitor type", # main title
+       subtitle = "Sum of all visits during study period") + # subtitle
+  scale_x_continuous(breaks = seq(0, 120, 20), expand = c(0, 0)) + # control x-axis scale
+  my_theme # apply my custom theme
+```
+
+## Map
+
+```{r}
+# create an interactive map using Leaflet
+leaflet(locations) %>% # load dataset with location coordinates
+  addProviderTiles(providers$Esri.WorldImagery) %>% # add satellite imagery background
+  addProviderTiles(providers$CartoDB.PositronOnlyLabels) %>% # add labels on top
+  addCircleMarkers(
+    lng = ~ longitude, # longitude for marker position
+    lat = ~ latitude, # latitude for marker position
+    popup = ~ restore_loc, # show location name when clicked
+    radius = 5, # size of markers
+    fillColor = "salmon", # marker color
+    fillOpacity = 1, # marker transparency
+    stroke = TRUE, # draw border around markers
+    weight = 0.5, # border thickness
+    color = "white", # border color
+    opacity = 1) #border opacity
+```
+# Discussion
+
+The bar plot was chosen because it clearly shows the total number of visits for each restoration location and allows easy comparison between different visitor types. The use of color also helps distinguish categories quickly.
+
+The map was selected because it provides a spatial perspective of the restoration areas. It helps the viewer understand where each location is and how they are distributed across the Delta. The interactive features, such as popups, make it more engaging and informative.

@@ -1,0 +1,19 @@
+---
+title: "Decision Log"
+author: "Jorge Coronado"
+editor: visual
+---
+
+## Decision Log
+
+For this assignment, I mostly focused on getting the data into the right format and making sure all the projections matched.
+
+I started by loading the Alaska regions shapefile and checking that everything looked correct. The original projection (WGS84) made the map look a bit weird, so I transformed it to Alaska Albers (EPSG:3338), which works better for Alaska.
+
+Then I loaded the population data and converted it into an `sf` object using the latitude and longitude columns. After that, I made sure both datasets had the same CRS before doing a spatial join. I used `st_within` to assign each city to the region it belongs to.
+
+Once everything was joined, I calculated total population by region. I dropped the geometry for that step since I only needed the numbers, then joined the results back to the spatial data so I could map it.
+
+For the maps, I used `ggplot2` with `geom_sf()` and added rivers and city points for more context. When adding a basemap, I had to switch to EPSG:3857 since that’s what OpenStreetMap uses. For the leaflet map, I switched back to EPSG:4326 because that’s what leaflet expects.
+
+Overall, the main challenge was keeping track of projections and making sure everything lined up correctly.
