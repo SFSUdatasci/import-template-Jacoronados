@@ -5,7 +5,7 @@ author: "Jorge Coronado"
 
 # Introduction
 
-This Quarto document follows the structure of a prose + code reproducible analysis, similiar to the format presented in coreR session 05 (literate Analysis with Quarto). Here, I analyze a dataset of TiO2 thin film growth experiments designed to explore how synthesis and annealing conditions influence structural properties and photoelectrocatalytic performance.
+This Quarto document follows the structure of a prose + code reproducible analysis, similiar to the format presented in coreR session 05 (literate Analysis with Quarto). Here, I analyze a dataset of TiO2 thin film growth experiments designed to explore how synthesis and annealing conditions influence structural properties and photoelectrocatalytic performance..
 
 ## About the data
 
