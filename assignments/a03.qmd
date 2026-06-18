@@ -1,0 +1,47 @@
+---
+title: "a03"
+author: Jorge coronado
+---
+# Introduction
+
+This analysis shows the catch pattern by region for different species. This information is useful for fisheries management, conservation and making decisions based on data.
+
+# Data
+
+The data comes from an ecological repository and it was read directly from the source.
+
+# Analysis
+
+This analysis first removes irrelevant columns and fixes the format of the Chinook column. Then, the data set is transformed into long format, the catch values are multiplied by 1000 to adjust the units, and the mean catch is calculated by region. Finally, the regions are ordered from highest to lowest mean catch.
+
+## Setup
+
+```{r}
+library(dplyr)
+library(tidyr)
+library(readr)
+```
+
+```{r}
+# read the csv file from the url using libcurl.
+catch_original <- read.csv(url("https://knb.ecoinformatics.org/knb/d1/mn/v2/object/df35b.302.1", method = "libcurl"))
+```
+
+```{r}
+mean_region <- catch_original %>% 
+  select(-All, -notesRegCode) %>% # remove not needed columns for calculating means
+  mutate(Chinook = if_else(Chinook == "I", "1", Chinook)) %>% # replace "I" values for "1" in the Chinook column
+  mutate(Chinook = as.numeric(Chinook)) %>% # convert the chinook column from character to numeric
+  pivot_longer(-c(Region, Year), # reshape data from wide format to long format, keeping Region and Year
+               names_to = "species", # new column containing species names
+               values_to = "catch") %>% # new column containing catch values
+  mutate(catch = catch*1000) %>% # multiply catch values by 1000
+  group_by(Region) %>%  # group data by region 
+  summarize(mean_catch = mean(catch)) %>% # calculate the mean of catch by region
+  arrange(desc(mean_catch)) # sort out in decreasing order the values of mean catch
+
+head(mean_region) # display the first few rows of mean_region
+```
+# Discussion
+
+Regions with higher mean_catch stand out as areas with greater average catch. However, it is important to check whether these averages are influenced by a few extreme years. Before making casual interpretations, it is recommended to review values (NA), check for outliers, confirm the units, and consider using medians or interquartile ranges to complement the mean...
