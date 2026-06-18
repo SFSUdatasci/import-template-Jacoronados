@@ -24,6 +24,10 @@ The seawater chemistry dataset used here is `BGchem2008data.csv` (downloaded pre
 
 You will explore the nitrogen to phosphate ratio, which indicates the health of the ocean ecosystem. <https://beal-agulhas.earth.miami.edu/teaching/courses/lecture-five/index.html>
 
+Assignment 1: write a paragraph about Redfield Ratio
+
+Redfield Ratio is a diagnostic indicator of wellness in oceans; it was established by Alfred Redfield after he noticed a consistent proportion of 3 basic elements for the phytoplankton. Redfield Ratio compares the proportion of Carbon, Nitrogen and Phosphorus in a ratio of 106:16:1.
+
 ## Setup
 
 Best practice: put all `library()` calls in one chunk near the top so collaborators can see what packages are required.
@@ -40,7 +44,7 @@ Quarto runs R in the same way as a script: objects only exist after the chunks t
 Using `here()` is a convenient way to build paths relative to your project root (e.g., your `.qmd` might live in `scripts/` while data lives in `data/`).
 
 ```{r}
-bg_chem <- read_csv(here::here("data", "BGchem2008data.csv"))
+bg_chem <- read_csv(here::here("data/raw", "BGchem2008data.csv"))
 ```
 
 (Optional) Quick peek at the data:
@@ -92,6 +96,10 @@ plot(
   main = "Ocean water samples: total N vs P"
 )
 ```
+
+Assignment 2: write a paragraph about the plot
+
+The plot shows a consistent linear behavior where the total nitrogen grows in a linear proportion to the total phosphorus, however the ratio for most of the samples are under the Redfield ratio of 16:1
 
 # Conclusion
 
